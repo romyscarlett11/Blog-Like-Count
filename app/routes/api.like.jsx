@@ -2,7 +2,12 @@
 
 import { data } from "react-router";
 import { authenticate } from "../shopify.server";
-
+export async function action({ request }) {
+  return Response.json({
+    success: true,
+    test: "API reached",
+  });
+}
 export async function action({ request }) {
   try {
     // Authenticate app proxy request
