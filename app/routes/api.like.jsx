@@ -1,18 +1,25 @@
-// app/routes/api.like.jsx
-
 import { data } from "react-router";
 import { authenticate } from "../shopify.server";
 
 export async function action({ request }) {
   try {
-    // Authenticate app proxy request
+    console.log("STEP 1 - API HIT");
+
+    // App Proxy Auth
     const { admin } = await authenticate.public.appProxy(request);
 
-    // Get request body
+    console.log("STEP 2 - AUTH SUCCESS");
+
+    // Request Body
     const body = await request.json();
+
+    console.log("STEP 3 - BODY:", body);
+
     const { articleId, action } = body;
 
-    // Validate input
+    console.log("STEP 4 - ARTICLE ID:", articleId);
+    console.log("STEP 4 - ACTION:", action);
+
     if (!articleId) {
       return data(
         {
@@ -23,10 +30,9 @@ export async function action({ request }) {
       );
     }
 
-    // Default action = like
     const requestedAction = action || "like";
 
-    // Get current likes_count metafield
+    // Get current metafield value
     const query = `
       query GetArticle($id: ID!) {
         article(id: $id) {
@@ -38,6 +44,8 @@ export async function action({ request }) {
       }
     `;
 
+    console.log("STEP 5 - RUNNING ARTICLE QUERY");
+
     const queryResponse = await admin.graphql(query, {
       variables: {
         id: articleId,
@@ -46,12 +54,18 @@ export async function action({ request }) {
 
     const queryJson = await queryResponse.json();
 
+    console.log(
+      "STEP 6 - QUERY RESPONSE:",
+      JSON.stringify(queryJson, null, 2)
+    );
+
     const currentLikes = parseInt(
       queryJson?.data?.article?.metafield?.value || "0",
       10
     );
 
-    // Calculate new likes count
+    console.log("STEP 6.1 - CURRENT LIKES:", currentLikes);
+
     let newLikes = currentLikes;
 
     if (requestedAction === "like") {
@@ -60,11 +74,13 @@ export async function action({ request }) {
       newLikes = Math.max(currentLikes - 1, 0);
     }
 
-    // Save updated metafield
+    console.log("STEP 6.2 - NEW LIKES:", newLikes);
+
     const mutation = `
       mutation SetLikes($metafields: [MetafieldsSetInput!]!) {
         metafieldsSet(metafields: $metafields) {
           metafields {
+            id
             value
           }
           userErrors {
@@ -74,6 +90,8 @@ export async function action({ request }) {
         }
       }
     `;
+
+    console.log("STEP 7 - RUNNING METAFIELD MUTATION");
 
     const mutationResponse = await admin.graphql(mutation, {
       variables: {
@@ -91,10 +109,17 @@ export async function action({ request }) {
 
     const mutationJson = await mutationResponse.json();
 
+    console.log(
+      "STEP 8 - MUTATION RESPONSE:",
+      JSON.stringify(mutationJson, null, 2)
+    );
+
     const errors =
       mutationJson?.data?.metafieldsSet?.userErrors || [];
 
     if (errors.length > 0) {
+      console.error("STEP 9 - USER ERRORS:", errors);
+
       return data(
         {
           success: false,
@@ -104,7 +129,8 @@ export async function action({ request }) {
       );
     }
 
-    // Return updated count
+    console.log("STEP 10 - SUCCESS");
+
     return data({
       success: true,
       likes: newLikes,
@@ -112,10 +138,18 @@ export async function action({ request }) {
       articleId,
     });
   } catch (error) {
+    console.error("=================================");
+    console.error("LIKE API ERROR");
+    console.error(error);
+    console.error(error?.message);
+    console.error(error?.stack);
+    console.error("=================================");
+
     return data(
       {
         success: false,
-        error: error.message,
+        error: error?.message || "Unknown error",
+        stack: error?.stack || null,
       },
       { status: 500 }
     );
