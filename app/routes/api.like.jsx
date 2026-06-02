@@ -112,12 +112,15 @@ export async function action({ request }) {
       articleId,
     });
   } catch (error) {
-    return data(
-      {
-        success: false,
-        error: error.message,
-      },
-      { status: 500 }
-    );
-  }
+  console.error("LIKE API ERROR:", error);
+
+  return Response.json(
+    {
+      success: false,
+      error: error?.message,
+      stack: error?.stack,
+    },
+    { status: 500 }
+  );
+}
 }
