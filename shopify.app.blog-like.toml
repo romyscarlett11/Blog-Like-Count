@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "8abf966846580a10ddbd158de03ac914"
-application_url = "https://s-hopify-blog-like-app.vercel.app"
+application_url = "https://blog-like-count.vercel.app"
 embedded = true
 name = "Blog-like"
 
@@ -11,8 +11,8 @@ scopes = "read_content,write_content,write_metaobject_definitions,write_metaobje
 
 [auth]
 redirect_urls = [
-  "https://s-hopify-blog-like-app.vercel.app/api/auth",
-  "https://s-hopify-blog-like-app.vercel.app/auth/callback"
+  "https://blog-like-count.vercel.app/api/auth",
+  "https://blog-like-count.vercel.app/auth/callback"
 ]
 
 [webhooks]
