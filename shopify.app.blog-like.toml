@@ -1,0 +1,23 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "8abf966846580a10ddbd158de03ac914"
+application_url = "https://s-hopify-blog-like-app.vercel.app"
+embedded = true
+name = "Blog-like"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_content,write_content,write_metaobject_definitions,write_metaobjects,write_products"
+
+[auth]
+redirect_urls = [
+  "https://s-hopify-blog-like-app.vercel.app/api/auth",
+  "https://s-hopify-blog-like-app.vercel.app/auth/callback"
+]
+
+[webhooks]
+api_version = "2026-07"
+
+[build]
+include_config_on_deploy = true
+automatically_update_urls_on_dev = true
